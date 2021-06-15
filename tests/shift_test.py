@@ -4,6 +4,7 @@ import pytest
 import numpy as np
 import pyarrow as pa
 import vaex.shift
+import vaex.ml
 
 
 def chunk_iter(chunks, chunk_size):
@@ -364,3 +365,9 @@ def test_diff(df_factory, periods):
     assert np.all(np.isnan(result) == np.isnan(expected))
     mask = ~np.isnan(result)
     assert result[mask].tolist() == expected[mask].tolist()
+
+def test_shift_hdf5():
+    df = vaex.ml.datasets.load_titanic()
+    df_diff = df.diff(column='age')
+    assert 'error' not in repr(df_diff)
+    assert df_diff.age.tolist()[1:8] == [-28.0833, 1.0833, 28.0, -5.0, 23.0, 15.0, -24.0]
